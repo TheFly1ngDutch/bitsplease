@@ -1,0 +1,252 @@
+leaf 101
+
+hostname Leaf-101
+feature ospf
+feature pim
+feature interface-vlan
+
+
+router ospf UNDERLAY-INFRA
+name-lookup
+router-id 183.1.101.101
+
+int lo 0
+description --RID|Underlay interface ---
+ip add 183.1.101.101/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+no shut
+
+int e1/1-2
+no switchport
+medium p2p
+ip unnumbered loopback 0
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip ospf network point-to-point
+no shut
+
+ip host LEAF-101 183.1.101.101
+ip host LEAF-102 183.1.102.102
+ip host SPINE-201 183.1.201.201
+ip host SPINE-202 183.1.202.202
+
+int lo 100
+ip add 10.1.100.101/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+no shut
+
+int lo 0
+ip pim sparse-mode
+int lo 100
+ip pim sparse-mode
+int e1/1-2
+ip pim sparse-mode
+
+
+ip pim rp-address 10.1.200.200
+
+feature nv overlay
+feature vn-segment-vlan-based
+int lo 100
+description --VTEP Addesss ---
+
+int nve 1
+no shut
+source-interface lo 100
+member vni 10100 mcast-group 239.9.9.9
+
+
+vlan 100
+vn-segment 10100
+
+int e 1/7
+switchport
+switchport mode access
+switchport access vlan 100
+no shut
+
+leaf 102
+
+hostname Leaf-102
+feature ospf
+feature pim
+feature interface-vlan
+
+router ospf UNDERLAY-INFRA
+name-lookup
+router-id 183.1.102.102
+
+int lo 0
+description --RID|Underlay interface ---
+ip add 183.1.102.102/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+no shut
+
+int e1/1-2
+no switchport
+medium p2p
+ip unnumbered loopback 0
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip ospf network point-to-point
+no shut
+
+ip host LEAF-101 183.1.101.101
+ip host LEAF-102 183.1.102.102
+ip host SPINE-201 183.1.201.201
+ip host SPINE-202 183.1.202.202
+
+int lo 100
+ip add 10.1.100.102/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+no shut
+
+int lo 0
+ip pim sparse-mode
+int lo 100
+ip pim sparse-mode
+int e1/1-2
+ip pim sparse-mode
+
+
+ip pim rp-address 10.1.200.200
+
+feature nv overlay
+feature vn-segment-vlan-based
+int lo 100
+description --VTEP Addesss ---
+
+int nve 1
+no shut
+source-interface lo 100
+member vni 10100 mcast-group 239.9.9.9
+
+vlan 100
+vn-segment 10100
+
+int e 1/7
+switchport
+switchport mode access
+switchport access vlan 100
+no shut
+
+Spine 201
+
+hostname Spine-201
+feature ospf
+feature pim
+feature interface-vlan
+
+router ospf UNDERLAY-INFRA
+name-lookup
+router-id 183.1.201.201
+
+int lo 0
+description --RID|Underlay interface ---
+ip add 183.1.201.201/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+no shut
+
+int e1/1-2
+no switchport
+medium p2p
+ip unnumbered loopback 0
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip ospf network point-to-point
+no shut
+
+ip host LEAF-101 183.1.101.101
+ip host LEAF-102 183.1.102.102
+ip host SPINE-201 183.1.201.201
+ip host SPINE-202 183.1.202.202
+
+int lo 0
+ip pim sparse-mode
+int e1/1-2
+ip pim sparse-mode
+
+#Anycast RP
+int lo 201
+description --Anycast-RP SET ID ---
+ip add 10.1.200.201/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip pim sparse-mode
+no shut
+
+int lo 200
+description --SHARED Anycast IP ---
+ip add 10.1.200.200/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip pim sparse-mode
+no shut
+
+ip pim anycast-rp 10.1.200.200 10.1.200.201
+ip pim anycast-rp 10.1.200.200 10.1.200.202
+
+ip pim rp-address 10.1.200.200
+
+
+Spine 202
+
+hostname Spine-202
+feature ospf
+feature pim
+feature interface-vlan
+
+router ospf UNDERLAY-INFRA
+name-lookup
+router-id 183.1.202.202
+
+int lo 0
+description --RID|Underlay interface ---
+ip add 183.1.202.202/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+no shut
+
+int e1/1-2
+no switchport
+medium p2p
+ip unnumbered loopback 0
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip ospf network point-to-point
+no shut
+
+ip host LEAF-101 183.1.101.101
+ip host LEAF-102 183.1.102.102
+ip host SPINE-201 183.1.201.201
+ip host SPINE-202 183.1.202.202
+
+int lo 0
+ip pim sparse-mode
+int e1/1-2
+ip pim sparse-mode
+
+
+#Anycast RP
+int lo 202
+description --Anycast-RP SET ID ---
+ip add 10.1.200.202/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip pim sparse-mode
+no shut
+
+int lo 200
+description --SHARED Anycast IP ---
+ip add 10.1.200.200/32
+ip router ospf UNDERLAY-INFRA area 0.0.0.0
+ip pim sparse-mode
+no shut
+
+ip pim anycast-rp 10.1.200.200 10.1.200.201
+ip pim anycast-rp 10.1.200.200 10.1.200.202
+
+ip pim rp-address 10.1.200.200
+
+
+HOST1
+
+VPCS> set pcname HOST1
+HOST1> ip 192.168.100.201 255.255.255.0
+
+HOST2
+
+VPCS> set pcname HOST2
+HOST2> ip 192.168.100.202 255.255.255.0

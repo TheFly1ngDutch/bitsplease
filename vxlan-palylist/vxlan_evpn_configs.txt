@@ -1,0 +1,802 @@
+N1
+
+host N1
+interface Ethernet1/1
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/2
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/3
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/4
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/5
+  no switchport
+  mtu 9216
+  no shutdown
+
+
+feature ospf
+
+router ospf OSPF_UNDERLAY_NET
+  log-adjacency-changes
+
+interface Ethernet1/1-4
+  medium p2p
+  ip unnumbered loopback0
+  ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+interface loopback0
+  description Loopback
+  ip address 192.168.0.1/32
+  ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+
+feature pim
+
+ip pim rp-address 1.2.3.4 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+ip pim anycast-rp 1.2.3.4 192.168.0.1
+ip pim anycast-rp 1.2.3.4 192.168.0.2
+
+interface loopback1
+  ip address 1.2.3.4/32
+  ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+  ip pim sparse-mode
+
+interface loopback0
+  ip pim sparse-mode
+
+int Ethernet1/1-4
+  ip pim sparse-mode
+
+
+nv overlay evpn
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+router bgp 64520
+  log-neighbor-changes
+  address-family ipv4 unicast
+  address-family l2vpn evpn
+    retain route-target all
+  template peer VXLAN_LEAF
+    remote-as 64520
+    update-source loopback0
+    address-family ipv4 unicast
+      send-community extended
+      route-reflector-client
+      soft-reconfiguration inbound
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+      route-reflector-client
+  neighbor 192.168.0.3
+    inherit peer VXLAN_LEAF
+  neighbor 192.168.0.4
+    inherit peer VXLAN_LEAF
+  neighbor 192.168.0.5
+    inherit peer VXLAN_LEAF
+  neighbor 192.168.0.6
+    inherit peer VXLAN_LEAF
+
+
+N2
+
+host N2
+interface Ethernet1/1
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/2
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/3
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/4
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/5
+  no switchport
+  mtu 9216
+  no shutdown
+
+
+feature ospf
+
+router ospf OSPF_UNDERLAY_NET
+  log-adjacency-changes
+
+interface Ethernet1/1-4
+  medium p2p
+  ip unnumbered loopback0
+  ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+interface loopback0
+  description Loopback
+  ip address 192.168.0.2/32
+  ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+
+feature pim
+
+ip pim rp-address 1.2.3.4 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+ip pim anycast-rp 1.2.3.4 192.168.0.1
+ip pim anycast-rp 1.2.3.4 192.168.0.2
+
+interface loopback1
+  ip address 1.2.3.4/32
+  ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+  ip pim sparse-mode
+
+interface loopback0
+  ip pim sparse-mode
+
+int Ethernet1/1-4
+  ip pim sparse-mode
+
+
+nv overlay evpn
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+router bgp 64520
+  log-neighbor-changes
+  address-family ipv4 unicast
+  address-family l2vpn evpn
+    retain route-target all
+  template peer VXLAN_LEAF
+    remote-as 64520
+    update-source loopback0
+    address-family ipv4 unicast
+      send-community extended
+      route-reflector-client
+      soft-reconfiguration inbound
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+      route-reflector-client
+  neighbor 192.168.0.3
+    inherit peer VXLAN_LEAF
+  neighbor 192.168.0.4
+    inherit peer VXLAN_LEAF
+  neighbor 192.168.0.5
+    inherit peer VXLAN_LEAF
+  neighbor 192.168.0.6
+    inherit peer VXLAN_LEAF
+
+
+
+N3
+
+host N3
+interface Ethernet1/1
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/2
+no switchport
+mtu 9216
+no shutdown
+
+feature ospf
+
+router ospf OSPF_UNDERLAY_NET
+log-adjacency-changes
+
+interface Ethernet1/1-2
+medium p2p
+ip unnumbered loopback0
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+interface loopback0
+description Loopback
+ip address 192.168.0.3/32
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+
+feature pim
+
+ip pim rp-address 1.2.3.4 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+
+interface loopback0
+  ip pim sparse-mode
+
+interface Ethernet1/1
+  ip pim sparse-mode
+
+interface Ethernet1/2
+  ip pim sparse-mode
+
+
+feature nv overlay
+
+interface nve1
+no shutdown
+host-reachability protocol bgp
+source-interface loopback0
+
+nv overlay evpn
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+router bgp 64520
+log-neighbor-changes
+address-family ipv4 unicast
+address-family l2vpn evpn
+template peer VXLAN_SPINE
+  remote-as 64520
+  update-source loopback0
+  address-family ipv4 unicast
+    send-community extended
+    soft-reconfiguration inbound
+  address-family l2vpn evpn
+    send-community
+    send-community extended
+neighbor 192.168.0.1
+  inherit peer VXLAN_SPINE
+neighbor 192.168.0.2
+  inherit peer VXLAN_SPINE
+
+
+
+
+  hardware access-list tcam region vpc-convergence 0
+  hardware access-list tcam region arp-ether 256
+
+fabric forwarding anycast-gateway-mac 0000.0011.1234
+
+vlan 10
+  vn-segment 100010
+
+interface Vlan10
+  no shutdown
+  ip address 10.10.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface nve1
+  !
+  member vni 100010
+    suppress-arp
+    mcast-group 224.1.1.192
+
+evpn
+  vni 100010 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+
+int e 1/7
+switchport mode access
+switchport access vlan 10
+no shut
+
+
+vlan 999
+  vn-segment 100999
+
+vrf context TENANT1
+  vni 100999
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+
+interface Vlan999
+  no shutdown
+  vrf member TENANT1
+  ip forward
+
+interface nve1
+  !
+  member vni 100999 associate-vrf
+
+
+router bgp 64520
+  vrf TENANT1
+    log-neighbor-changes
+    address-family ipv4 unicast
+      network 10.10.1.0/24
+      advertise l2vpn evpn
+
+
+interface Vlan10
+  vrf member TENANT1
+  ip address 10.10.1.254/24
+  fabric forwarding mode anycast-gateway
+  no shut
+
+
+
+N4
+
+host N4
+interface Ethernet1/1
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/2
+no switchport
+mtu 9216
+no shutdown
+
+feature ospf
+
+router ospf OSPF_UNDERLAY_NET
+log-adjacency-changes
+
+interface Ethernet1/1-2
+medium p2p
+ip unnumbered loopback0
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+interface loopback0
+description Loopback
+ip address 192.168.0.4/32
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+feature pim
+
+ip pim rp-address 1.2.3.4 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+
+interface loopback0
+  ip pim sparse-mode
+
+interface Ethernet1/1
+  ip pim sparse-mode
+
+interface Ethernet1/2
+  ip pim sparse-mode
+
+
+feature nv overlay
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+
+nv overlay evpn
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+router bgp 64520
+log-neighbor-changes
+address-family ipv4 unicast
+address-family l2vpn evpn
+template peer VXLAN_SPINE
+  remote-as 64520
+  update-source loopback0
+  address-family ipv4 unicast
+    send-community extended
+    soft-reconfiguration inbound
+  address-family l2vpn evpn
+    send-community
+    send-community extended
+neighbor 192.168.0.1
+  inherit peer VXLAN_SPINE
+neighbor 192.168.0.2
+  inherit peer VXLAN_SPINE
+
+fabric forwarding anycast-gateway-mac 0000.0010.0999
+
+vlan 20,999
+
+interface Vlan1
+  no shutdown
+
+interface Vlan20
+  no shutdown
+  fabric forwarding mode anycast-gateway
+
+  hardware access-list tcam region vpc-convergence 0
+  hardware access-list tcam region arp-ether 256
+
+fabric forwarding anycast-gateway-mac 0000.0011.1234
+
+vlan 20
+  vn-segment 100020
+
+interface Vlan20
+  no shutdown
+  ip address 10.20.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface nve1
+  !
+  member vni 100020
+    suppress-arp
+    mcast-group 224.1.1.192
+
+evpn
+  vni 100020 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+
+int e 1/7
+switchport mode access
+switchport access vlan 20
+no shut
+
+vlan 999
+  vn-segment 100999
+
+vrf context TENANT1
+  vni 100999
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+
+interface Vlan999
+  no shutdown
+  vrf member TENANT1
+  ip forward
+
+interface nve1
+  !
+  member vni 100999 associate-vrf
+
+
+  router bgp 64520
+    vrf TENANT1
+      log-neighbor-changes
+      address-family ipv4 unicast
+        network 10.20.1.0/24
+        advertise l2vpn evpn
+
+interface Vlan20
+no shutdown
+vrf member TENANT1
+ip address 10.20.1.254/24
+fabric forwarding mode anycast-gateway
+
+N5
+
+host N5
+interface Ethernet1/3
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/4
+no switchport
+mtu 9216
+no shutdown
+
+feature ospf
+
+router ospf OSPF_UNDERLAY_NET
+log-adjacency-changes
+
+interface Ethernet1/3-4
+medium p2p
+ip unnumbered loopback0
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+interface loopback0
+description Loopback
+ip address 192.168.0.5/32
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+feature pim
+
+ip pim rp-address 1.2.3.4 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+
+interface loopback0
+  ip pim sparse-mode
+
+interface Ethernet1/3
+  ip pim sparse-mode
+
+interface Ethernet1/4
+  ip pim sparse-mode
+
+
+feature nv overlay
+
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+
+
+nv overlay evpn
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+router bgp 64520
+log-neighbor-changes
+address-family ipv4 unicast
+address-family l2vpn evpn
+template peer VXLAN_SPINE
+  remote-as 64520
+  update-source loopback0
+  address-family ipv4 unicast
+    send-community extended
+    soft-reconfiguration inbound
+  address-family l2vpn evpn
+    send-community
+    send-community extended
+neighbor 192.168.0.1
+  inherit peer VXLAN_SPINE
+neighbor 192.168.0.2
+  inherit peer VXLAN_SPINE
+
+
+
+
+  hardware access-list tcam region vpc-convergence 0
+  hardware access-list tcam region arp-ether 256
+
+
+  fabric forwarding anycast-gateway-mac 0000.0011.1234
+
+  vlan 10
+    vn-segment 100010
+
+  interface Vlan10
+    no shutdown
+    ip address 10.10.1.254/24
+    fabric forwarding mode anycast-gateway
+
+  interface nve1
+    !
+    member vni 100010
+      suppress-arp
+      mcast-group 224.1.1.192
+
+  evpn
+    vni 100010 l2
+      rd auto
+      route-target import auto
+      route-target export auto
+
+int e 1/7
+switchport mode access
+switchport access vlan 10
+no shut
+
+vlan 999
+  vn-segment 100999
+
+vrf context TENANT1
+  vni 100999
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+
+interface Vlan999
+  no shutdown
+  vrf member TENANT1
+  ip forward
+
+interface nve1
+  !
+  member vni 100999 associate-vrf
+
+router bgp 64520
+  vrf TENANT1
+    log-neighbor-changes
+    address-family ipv4 unicast
+      network 10.10.1.0/24
+      advertise l2vpn evpn
+
+
+
+interface Vlan10
+  vrf member TENANT1
+  ip address 10.10.1.254/24
+  fabric forwarding mode anycast-gateway
+  no shut
+
+
+N6
+
+host N6
+interface Ethernet1/3
+no switchport
+mtu 9216
+no shutdown
+
+interface Ethernet1/4
+no switchport
+mtu 9216
+no shutdown
+
+feature ospf
+
+router ospf OSPF_UNDERLAY_NET
+log-adjacency-changes
+
+interface Ethernet1/3-4
+medium p2p
+ip unnumbered loopback0
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+interface loopback0
+description Loopback
+ip address 192.168.0.6/32
+ip router ospf OSPF_UNDERLAY_NET area 0.0.0.0
+
+feature pim
+
+ip pim rp-address 1.2.3.4 group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+
+interface loopback0
+  ip pim sparse-mode
+
+interface Ethernet1/3
+  ip pim sparse-mode
+
+interface Ethernet1/4
+  ip pim sparse-mode
+
+feature nv overlay
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+
+nv overlay evpn
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature nv overlay
+
+router bgp 64520
+log-neighbor-changes
+address-family ipv4 unicast
+address-family l2vpn evpn
+template peer VXLAN_SPINE
+  remote-as 64520
+  update-source loopback0
+  address-family ipv4 unicast
+    send-community extended
+    soft-reconfiguration inbound
+  address-family l2vpn evpn
+    send-community
+    send-community extended
+neighbor 192.168.0.1
+  inherit peer VXLAN_SPINE
+neighbor 192.168.0.2
+  inherit peer VXLAN_SPINE
+
+
+fabric forwarding anycast-gateway-mac 0000.0010.0999
+
+vlan 20,999
+
+interface Vlan1
+  no shutdown
+
+interface Vlan20
+  no shutdown
+  fabric forwarding mode anycast-gateway
+
+
+hardware access-list tcam region vpc-convergence 0
+hardware access-list tcam region arp-ether 256
+
+
+fabric forwarding anycast-gateway-mac 0000.0011.1234
+
+vlan 20
+  vn-segment 100020
+
+interface Vlan20
+  no shutdown
+  ip address 10.20.1.254/24
+  fabric forwarding mode anycast-gateway
+
+interface nve1
+  !
+  member vni 100020
+    suppress-arp
+    mcast-group 224.1.1.192
+
+evpn
+  vni 100020 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+
+int e 1/7
+switchport mode access
+switchport access vlan 20
+no shut
+
+
+vlan 999
+  vn-segment 100999
+
+vrf context TENANT1
+  vni 100999
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+
+interface Vlan999
+  no shutdown
+  vrf member TENANT1
+  ip forward
+
+interface nve1
+  !
+  member vni 100999 associate-vrf
+
+
+  router bgp 64520
+    vrf TENANT1
+      log-neighbor-changes
+      address-family ipv4 unicast
+        network 10.20.1.0/24
+        advertise l2vpn evpn
+
+interface Vlan20
+no shutdown
+vrf member TENANT1
+ip address 10.20.1.254/24
+fabric forwarding mode anycast-gateway
+
+
+H1
+
+ip 10.10.1.1/24 10.10.1.254
+
+H2
+ip 10.20.1.1/24 10.20.1.254
+
+H3
+
+ip 10.10.1.2/24 10.10.1.254
+H4
+
+ip 10.20.1.2/24 10.20.1.254
