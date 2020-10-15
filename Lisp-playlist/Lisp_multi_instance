@@ -1,0 +1,226 @@
+R1
+
+host R1
+
+int lo 0
+ip add 1.1.1.1 255.255.255.0
+ip ospf network point-to-point
+no shut
+
+int e 0/0
+ip add 10.1.12.1 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.12.0 0.0.0.255 area 0
+network 1.1.1.0 0.0.0.255 area 0
+
+ip route 0.0.0.0 0.0.0.0 10.1.12.2
+
+R8
+
+host R8
+
+int lo 0
+ip add 172.8.8.8 255.255.255.0
+ip ospf network point-to-point
+no shut
+
+int e 0/0
+ip add 10.1.28.8 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.28.0 0.0.0.255 area 0
+network 172.8.8.0 0.0.0.255 area 0
+
+ip route 0.0.0.0 0.0.0.0 10.1.28.2
+
+
+
+R5
+
+host R5
+
+int lo 0
+ip add 5.5.5.5 255.255.255.0
+ip ospf network point-to-point
+no shut
+
+int e 0/0
+ip add 10.1.45.5 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.45.0 0.0.0.255 area 0
+network 5.5.5.0 0.0.0.255 area 0
+
+ip route 0.0.0.0 0.0.0.0 10.1.45.4
+
+R10
+
+host R10
+
+int lo 0
+ip add 172.10.10.10 255.255.255.0
+ip ospf network point-to-point
+no shut
+
+int e 0/0
+ip add 10.1.41.1 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.41.0 0.0.0.255 area 0
+network 172.10.10.0 0.0.0.255 area 0
+
+ip route 0.0.0.0 0.0.0.0 10.1.41.4
+
+
+
+R2
+
+
+hostname xtr2
+int lo 0
+ip add 2.2.2.2 255.255.255.255
+no shut
+
+vrf definition TEST1
+address-family ipv4
+
+vrf definition TEST2
+address-family ipv4
+
+
+
+int e 0/0
+vrf forwarding TEST1
+ip address 10.1.12.2 255.255.255.0
+no shut
+
+int e 0/2
+vrf forwarding TEST2
+ip address 10.1.28.2 255.255.255.0
+no shut
+
+int e 0/1
+ip add 10.1.23.2 255.255.255.0
+ip lisp source-locator lo 0
+no shut
+
+
+router ospf 1 vrf TEST1
+network 10.1.12.0 0.0.0.255 area 0
+
+router ospf 2 vrf TEST2
+network 10.1.28.0 0.0.0.255 area 0
+
+
+
+ip route 3.3.3.3 255.255.255.255 10.1.23.3
+ip route 4.4.4.4 255.255.255.255 10.1.23.3
+
+
+router lisp
+eid-table vrf TEST1 instance-id 100
+database-mapping 1.1.1.0/24 2.2.2.2 priority 1 weigh 50
+
+eid-table vrf TEST2 instance-id 200
+database-mapping 172.8.8.0/24 2.2.2.2 priority 1 weigh 50
+ !
+ ipv4 itr map-resolver 3.3.3.3
+ ipv4 itr
+ ipv4 etr map-server 3.3.3.3 key cisco
+ ipv4 etr
+
+
+
+R3
+
+hostname ms_mr
+int lo 0
+ip add 3.3.3.3 255.255.255.255
+no shut
+
+int e 0/0
+ip add 10.1.23.3 255.255.255.0
+no shut
+
+int e 0/1
+ip add 10.1.34.3 255.255.255.0
+no shut
+
+ip route 2.2.2.2 255.255.255.255 10.1.23.2
+ip route 4.4.4.4 255.255.255.255 10.1.34.4
+
+router lisp
+site SITE_A
+authentication-key cisco
+eid-prefix instance-id 100 1.1.1.0/24
+eid-prefix instance-id 200 172.8.8.0/24
+exit
+
+site SITE_B
+authentication-key cisco
+eid-prefix instance-id 100 5.5.5.0/24
+eid-prefix instance-id 200 172.10.10.0/24
+exit
+
+ipv4 map-server
+ipv4 map-resolver
+ipv4 map-request-source 3.3.3.3
+
+
+
+R4
+
+hostname xtr4
+int lo 0
+ip add 4.4.4.4 255.255.255.255
+no shut
+
+vrf definition TEST1
+address-family ipv4
+
+vrf definition TEST2
+address-family ipv4
+
+int e 0/0
+ip add 10.1.34.4 255.255.255.0
+ip lisp source-locator lo 0
+no shut
+
+int e 0/1
+vrf forwarding TEST1
+ip add 10.1.45.4 255.255.255.0
+no shut
+
+int e 0/2
+vrf forwarding TEST2
+ip add 10.1.41.4 255.255.255.0
+no shut
+
+
+router ospf 1 vrf TEST1
+network 10.1.45.0 0.0.0.255 area 0
+
+router ospf 2 vrf TEST2
+network 10.1.41.0 0.0.0.255 area 0
+
+
+ip route 3.3.3.3 255.255.255.255 10.1.34.3
+ip route 2.2.2.2 255.255.255.255 10.1.34.3
+
+router lisp
+ eid-table vrf TEST1 instance-id 100
+ database-mapping 5.5.5.0/24 4.4.4.4 priority 1 weigh 50
+
+ eid-table vrf TEST2 instance-id 200
+ database-mapping 172.10.10.0/24 4.4.4.4 priority 1 weigh 50
+
+ !
+ ipv4 itr map-resolver 3.3.3.3
+ ipv4 itr
+ ipv4 etr map-server 3.3.3.3 key cisco
+ ipv4 etr

@@ -1,0 +1,245 @@
+R1
+
+host R1
+
+int lo 0
+ip add 1.1.1.1 255.255.255.0
+ip ospf network point-to-point
+no shut
+
+int e 0/0
+ip add 10.1.12.1 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.12.0 0.0.0.255 area 0
+network 1.1.1.0 0.0.0.255 area 0
+
+ip route 0.0.0.0 0.0.0.0 10.1.12.2
+
+R2
+
+hostname xtr2
+int lo 0
+ip add 2.2.2.2 255.255.255.255
+no shut
+
+int e 0/0
+ip add 10.1.12.2 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.12.0 0.0.0.255 area 0
+
+int e 0/1
+ip add 10.1.23.2 255.255.255.0
+no shut
+
+ip route 3.3.3.3 255.255.255.255 10.1.23.3
+ip route 4.4.4.4 255.255.255.255 10.1.23.3
+ip route 6.6.6.6 255.255.255.255 10.1.23.3
+
+router lisp
+eid-table default instance-id 0
+database-mapping 1.1.1.0/24 2.2.2.2 priority 1 weigh 50
+
+
+ipv4 itr map-resolver 3.3.3.3
+ipv4 itr
+ipv4 etr map-server 3.3.3.3 key cisco
+ipv4 etr
+
+int e 0/1
+ip lisp source-locator lo 0
+
+router lisp
+ipv4 use-petr 6.6.6.6
+
+
+R3
+
+hostname ms_mr
+int lo 0
+ip add 3.3.3.3 255.255.255.255
+no shut
+
+int e 0/0
+ip add 10.1.23.3 255.255.255.0
+no shut
+
+int e 0/1
+ip add 10.1.34.3 255.255.255.0
+no shut
+
+ip route 2.2.2.2 255.255.255.255 10.1.23.2
+ip route 4.4.4.4 255.255.255.255 10.1.34.4
+ip route 6.6.6.6 255.255.255.255 10.1.36.6
+
+router lisp
+site SITE_A
+authentication-key cisco
+eid-prefix 1.1.1.0/24
+exit
+
+site SITE_B
+authentication-key cisco
+eid-prefix 5.5.5.0/24
+exit
+
+ipv4 map-server
+ipv4 map-resolver
+
+
+interface Ethernet0/2
+ip address 10.1.36.3 255.255.255.0
+no shut
+
+
+R4
+
+hostname xtr4
+int lo 0
+ip add 4.4.4.4 255.255.255.255
+no shut
+
+
+int e 0/1
+ip add 10.1.45.4 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.45.0 0.0.0.255 area 0
+
+int e 0/0
+ip add 10.1.34.4 255.255.255.0
+no shut
+
+ip route 2.2.2.2 255.255.255.255 10.1.34.3
+ip route 3.3.3.3 255.255.255.255 10.1.34.3
+ip route 6.6.6.6 255.255.255.255 10.1.34.3
+
+router lisp
+eid-table default instance-id 0
+database-mapping 5.5.5.0/24 4.4.4.4 priority 1 weigh 50
+exit
+
+ipv4 itr map-resolver 3.3.3.3
+ipv4 itr
+ipv4 etr map-server 3.3.3.3 key cisco
+ipv4 etr
+
+
+int e 0/0
+ip lisp source-locator lo 0
+
+router lisp
+ipv4 use-petr 6.6.6.6
+
+
+R5
+
+host R5
+
+int lo 0
+ip add 5.5.5.5 255.255.255.0
+ip ospf network point-to-point
+no shut
+
+int e 0/0
+ip add 10.1.45.5 255.255.255.0
+no shut
+
+router ospf 1
+network 10.1.45.0 0.0.0.255 area 0
+network 5.5.5.0 0.0.0.255 area 0
+
+ip route 0.0.0.0 0.0.0.0 10.1.45.4
+
+
+R6
+
+host xTR6
+
+interface Ethernet0/0
+ip address 10.1.36.6 255.255.255.0
+no shut
+
+interface Ethernet0/1
+ip address 10.1.67.6 255.255.255.0
+no shut
+
+int lo 0
+ip add 6.6.6.6 255.255.255.255
+no shut
+
+ip route 2.2.2.2 255.255.255.255 10.1.36.3
+ip route 3.3.3.3 255.255.255.255 10.1.36.3
+ip route 4.4.4.4 255.255.255.255 10.1.36.3
+
+
+#####LISp-to-NON-lisp####
+
+router lisp
+ eid-table default instance-id 0
+ !
+ ipv4 itr map-resolver 3.3.3.3
+  ipv4 itr
+  ipv4 etr map-server 3.3.3.3 key cisco
+  ipv4 etr
+
+ipv4 proxy-etr
+
+
+#####Non-LISP-to-lisp####
+
+router lisp
+ eid-table default instance-id 0
+  map-cache 0.0.0.0/0 map-request
+ !
+ ipv4 itr map-resolver 3.3.3.3
+  no ipv4 itr
+  ipv4 etr map-server 3.3.3.3 key cisco
+  ipv4 etr
+
+ipv4 proxy-etr
+ipv4 proxy-itr 6.6.6.6
+ #####
+
+
+ router ospf 1
+ network 10.1.67.0 0.0.0.255 area 0
+ redistribute static
+ redistribute connected
+
+
+
+R7
+
+host R7
+
+interface Ethernet0/0
+ip address 10.1.67.7 255.255.255.0
+ip nat inside
+no shut
+
+interface Ethernet0/1
+ip address 10.64.66.171 255.255.255.0
+ip nat outside
+no shut
+
+ip access-list extended INTERNET
+ deny   ip any 10.0.0.0 0.255.255.255
+ deny   ip any 172.16.0.0 0.15.255.255
+ deny   ip any 192.168.0.0 0.0.255.255
+ permit ip any any
+
+ip nat inside source list INTERNET interface Ethernet0/1 overload
+
+ip route 0.0.0.0 0.0.0.0 10.64.66.1
+ip route 1.1.1.0 255.255.255.0 10.1.67.6
+ip route 5.5.5.0 255.255.255.0 10.1.67.6
+
+
+router ospf 1
+network 10.1.67.0 0.0.0.255 area 0
+default-information originate
