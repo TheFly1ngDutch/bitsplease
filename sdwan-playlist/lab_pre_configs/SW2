@@ -1,0 +1,138 @@
+SW2#show run
+Building configuration...
+
+Current configuration : 1937 bytes
+!
+! Last configuration change at 15:11:47 UTC Sat May 30 2020
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback10
+ ip address 172.16.0.10 255.255.255.255
+!
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/2
+ no switchport
+ ip address 172.16.16.1 255.255.255.0
+!
+interface Ethernet0/3
+ no switchport
+ ip address 172.16.1.249 255.255.255.252
+!
+interface Ethernet1/0
+ no switchport
+ ip address 172.16.32.1 255.255.255.0
+!
+interface Ethernet1/1
+!
+interface Ethernet1/2
+!
+interface Ethernet1/3
+!
+interface Ethernet2/0
+!
+interface Ethernet2/1
+!
+interface Ethernet2/2
+!
+interface Ethernet2/3
+!
+interface Vlan10
+ ip address 172.16.1.1 255.255.255.248
+ ip mtu 1496
+ ip ospf authentication message-digest
+ ip ospf message-digest-key 1 md5 cisco
+!
+interface Vlan11
+ ip address 172.16.11.1 255.255.255.248
+!
+interface Vlan12
+ ip address 172.16.12.1 255.255.255.248
+!
+interface Vlan60
+ ip address 172.16.60.1 255.255.255.0
+!
+interface Vlan99
+ ip address 172.16.99.1 255.255.255.0
+!
+router ospf 1
+ router-id 172.16.0.10
+ no auto-cost
+ redistribute connected subnets
+ network 172.16.1.1 0.0.0.0 area 0
+ default-information originate
+!
+ip forward-protocol nd
+!
+ip http server
+!
+ip route 0.0.0.0 0.0.0.0 172.16.1.250
+ip route 10.0.0.0 255.255.0.0 172.16.16.2
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+!
+!
+!
+end

@@ -1,0 +1,154 @@
+R-MPLS#show run
+Building configuration...
+
+Current configuration : 1866 bytes
+!
+! Last configuration change at 15:10:57 UTC Sat May 30 2020
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R-MPLS
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ ip address 10.0.101.1 255.255.255.252
+!
+interface Ethernet0/1
+ ip address 10.0.102.1 255.255.255.252
+!
+interface Ethernet0/2
+ ip address 10.0.103.1 255.255.255.252
+!
+interface Ethernet0/3
+ ip address 10.0.1.5 255.255.255.252
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+interface Ethernet2/0
+ no ip address
+ shutdown
+!
+interface Ethernet2/1
+ no ip address
+ shutdown
+!
+interface Ethernet2/2
+ no ip address
+ shutdown
+!
+interface Ethernet2/3
+ no ip address
+ shutdown
+!
+router bgp 10
+ bgp log-neighbor-changes
+ network 10.0.1.4 mask 255.255.255.252
+ network 10.0.101.0 mask 255.255.255.252
+ network 10.0.102.0 mask 255.255.255.252
+ network 10.0.103.0 mask 255.255.255.252
+ neighbor 10.0.1.6 remote-as 65001
+ neighbor 10.0.1.6 send-community both
+ neighbor 10.0.101.2 remote-as 65101
+ neighbor 10.0.101.2 send-community both
+ neighbor 10.0.102.2 remote-as 65102
+ neighbor 10.0.102.2 send-community both
+ neighbor 10.0.103.2 remote-as 65103
+ neighbor 10.0.103.2 send-community both
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end

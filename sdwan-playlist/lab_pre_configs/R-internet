@@ -1,0 +1,204 @@
+R-internet#
+Jun 19 09:01:20.468: %CDP-4-DUPLEX_MISMATCH: duplex mismatch discovered on Ethernet1/1 (not full duplex), with Switch Ethernet0/2 (full duplex).
+R-internet#term len 0
+R-internet#show run
+Building configuration...
+
+Current configuration : 3100 bytes
+!
+! Last configuration change at 00:04:26 PST Fri Jun 19 2020
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R-internet
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+clock timezone PST -8 0
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip domain name bitsplease
+ip cef
+no ipv6 cef
+!
+!
+flow record v4_r1
+ match ipv4 tos
+ match ipv4 protocol
+ match ipv4 source address
+ match ipv4 destination address
+ match transport source-port
+ match transport destination-port
+ collect counter bytes long
+ collect counter packets long
+!
+!
+flow monitor MONITOR
+ record v4_r1
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username cisco privilege 15 password 0 cisco
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.1.255.25 255.255.255.0
+!
+interface Ethernet0/0
+ ip address 1.1.0.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/1
+ ip address 1.1.101.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/2
+ ip address 1.1.102.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/3
+ ip address 1.1.103.1 255.255.255.0
+ ip flow monitor MONITOR input
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet1/0
+ ip address 198.18.18.31 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+!
+interface Ethernet1/1
+ ip address 1.1.1.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+interface Ethernet2/0
+ no ip address
+ shutdown
+!
+interface Ethernet2/1
+ no ip address
+ shutdown
+!
+interface Ethernet2/2
+ no ip address
+ shutdown
+!
+interface Ethernet2/3
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat pool INTERNET 198.18.18.100 198.18.18.200 netmask 255.255.255.0
+ip nat inside source list INTERNET interface Ethernet1/0 overload
+ip nat inside source list INTERNET_FOR_CONTROLLERS interface Ethernet1/0 overload
+ip route 0.0.0.0 0.0.0.0 198.18.18.1
+ip route 1.2.1.0 255.255.255.252 1.1.1.2
+ip route 1.2.101.0 255.255.255.252 1.1.101.2
+!
+ip access-list extended INTERNET
+ deny   tcp any host 1.1.0.11
+ deny   tcp any host 1.1.0.12
+ deny   tcp any host 1.1.0.13
+ deny   udp any host 1.1.0.13
+ deny   udp any host 1.1.0.12
+ deny   udp any host 1.1.0.11
+ deny   icmp any host 1.1.0.11
+ deny   icmp any host 1.1.0.12
+ deny   icmp any host 1.1.0.13
+ deny   icmp any host 1.1.0.1
+ deny   udp any host 1.1.0.1
+ deny   tcp any host 1.1.0.1
+ permit udp any any
+ permit tcp any any
+ permit icmp any any
+ip access-list extended INTERNET_FOR_CONTROLLERS
+ deny   tcp any 1.0.0.0 0.255.255.255
+ deny   udp any 1.0.0.0 0.255.255.255
+ deny   icmp any 1.0.0.0 0.255.255.255
+ permit udp any any
+ permit tcp any any
+ permit icmp any any
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login local
+ transport input telnet ssh
+!
+ntp master 3
+!
+end
