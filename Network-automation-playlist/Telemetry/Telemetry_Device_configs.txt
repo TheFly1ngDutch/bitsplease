@@ -1,0 +1,49 @@
+netconf-yang
+
+telemetry ietf subscription 1
+ encoding encode-kvgpb
+ filter xpath /process-cpu-ios-xe-oper:cpu-usage/cpu-utilization/five-seconds
+ source-address 192.168.0.10
+ stream yang-push
+ update-policy periodic 500
+ receiver ip address 192.168.0.110 57000 protocol grpc-tcp
+
+telemetry ietf subscription 2
+ encoding encode-kvgpb
+ filter xpath /process-cpu-ios-xe-oper:cpu-usage/cpu-utilization/one-minute
+ source-address 192.168.0.10
+ stream yang-push
+ update-policy periodic 500
+ receiver ip address 192.168.0.110 57000 protocol grpc-tcp
+
+telemetry ietf subscription 3
+ encoding encode-kvgpb
+ filter xpath /process-cpu-ios-xe-oper:cpu-usage/cpu-utilization/five-minutes
+ source-address 192.168.0.10
+ stream yang-push
+ update-policy periodic 500
+ receiver ip address 192.168.0.110 57000 protocol grpc-tcp
+
+telemetry ietf subscription 4
+ encoding encode-kvgpb
+ filter xpath /memory-ios-xe-oper:memory-statistics/memory-statistic/used-memory
+ source-address 192.168.0.10
+ stream yang-push
+ update-policy periodic 500
+ receiver ip address 192.168.0.110 57000 protocol grpc-tcp
+
+telemetry ietf subscription 5
+ encoding encode-kvgpb
+ filter xpath /memory-ios-xe-oper:memory-statistics/memory-statistic/free-memory
+ source-address 192.168.0.10
+ stream yang-push
+ update-policy periodic 500
+ receiver ip address 192.168.0.110 57000 protocol grpc-tcp
+
+ telemetry ietf subscription 6
+ encoding encode-kvgpb
+ filter xpath /interfaces-ios-xe-oper:interfaces/interface/statistics
+ source-address 192.168.0.10
+ stream yang-push
+ update-policy periodic 500
+ receiver ip address 192.168.0.110 57000 protocol grpc-tcp

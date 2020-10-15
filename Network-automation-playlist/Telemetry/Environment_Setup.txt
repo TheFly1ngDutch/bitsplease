@@ -1,0 +1,73 @@
+
+
+InfluxDB & Telegraf
+
+
+	# Trust the Influx GPG key
+wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+
+	# Add the Influx repositories to apt
+source /etc/lsb-release
+echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+
+	# Update the repositories, and install influx
+sudo apt-get update && sudo apt-get install influxdb
+
+	# Enable influx, and start it
+sudo systemctl unmask influxdb.service
+sudo systemctl start influxdb
+
+	Once these commands have finished running, you should be able to log into the Influx CLI to verify that it is working.
+
+	bitsplease@linux:~$ influx
+Connected to http://localhost:8086 version 1.7.9
+InfluxDB shell version: 1.7.9
+> quit
+bitsplease@linux:~$
+
+
+Telegraf
+
+	# Update the repositories, and install telegraf
+sudo apt-get update && sudo apt-get install telegraf
+
+	# Generate the telegraf configuration with input from Cisco
+# devices, and output to Influxdb
+sudo telegraf --output-filter influxdb --input-filter cisco_telemetry_mdt config | sudo tee /etc/telegraf/telegraf.conf
+
+	# Enable and start the service
+sudo systemctl enable telegraf
+sudo systemctl start telegraf
+
+	bitsplease@linux:/etc/systemd$ sudo ss -plant
+State  Recv-Q  Send-Q        Local Address:Port            Peer Address:Port
+LISTEN 0       128           127.0.0.53%lo:53                   0.0.0.0:*       users:(("systemd-resolve",pid=737,fd=13))
+LISTEN 0       128                 0.0.0.0:22                   0.0.0.0:*       users:(("sshd",pid=983,fd=3))
+LISTEN 0       128               127.0.0.1:8088                 0.0.0.0:*       users:(("influxd",pid=2348,fd=3))
+ESTAB  0       0              82.71.240.83:22              212.23.9.213:63810   users:(("sshd",pid=1304,fd=3),("sshd",pid=1166,fd=3))
+LISTEN 0       128                       *:8086                       *:*       users:(("influxd",pid=2348,fd=5))
+LISTEN 0       128                    [::]:22                      [::]:*       users:(("sshd",pid=983,fd=4))
+LISTEN 0       128                       *:3000                       *:*       users:(("grafana-server",pid=3861,fd=6))
+LISTEN 0       128                       *:57000                      *:*       users:(("telegraf",pid=4794,fd=6))
+ESTAB  0       0                     [::1]:36856                  [::1]:8086    users:(("telegraf",pid=4794,fd=5))
+ESTAB  0       0                     [::1]:8086                   [::1]:36856   users:(("influxd",pid=2348,fd=6))
+ESTAB  0       0         [::ffff:10.0.2.1]:57000   [::ffff:192.168.0.2]:60761   users:(("telegraf",pid=4794,fd=7))
+	bitsplease@linux:/etc/systemd$ influx
+Connected to http://localhost:8086 version 1.7.9
+InfluxDB shell version: 1.7.9
+> show databases
+name: databases
+name
+----
+_internal
+telegraf
+> exit
+
+Grafana
+
+	sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install grafana
+	sudo systemctl daemon-reload
+sudo systemctl start grafana-server
