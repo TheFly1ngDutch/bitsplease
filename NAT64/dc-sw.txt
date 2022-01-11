@@ -1,0 +1,262 @@
+dc-sw#show run
+Building configuration...
+
+Current configuration : 7969 bytes
+!
+! Last configuration change at 21:07:55 UTC Mon Jan 10 2022
+!
+version 17.7
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service call-home
+platform punt-keepalive disable-kernel-core
+!
+hostname dc-sw
+!
+!
+vrf definition Mgmt-vrf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+!
+no aaa new-model
+!
+!
+!
+!
+ip routing
+!
+!
+!
+!
+login on-success log
+!
+!
+!
+!
+!
+!
+!
+!
+!
+crypto pki trustpoint SLA-TrustPoint
+ enrollment pkcs12
+ revocation-check crl
+!
+crypto pki trustpoint TP-self-signed-1117288648
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-1117288648
+ revocation-check none
+ rsakeypair TP-self-signed-1117288648
+!
+!
+crypto pki certificate chain SLA-TrustPoint
+ certificate ca 01
+  30820321 30820209 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030
+  32310E30 0C060355 040A1305 43697363 6F312030 1E060355 04031317 43697363
+  6F204C69 63656E73 696E6720 526F6F74 20434130 1E170D31 33303533 30313934
+  3834375A 170D3338 30353330 31393438 34375A30 32310E30 0C060355 040A1305
+  43697363 6F312030 1E060355 04031317 43697363 6F204C69 63656E73 696E6720
+  526F6F74 20434130 82012230 0D06092A 864886F7 0D010101 05000382 010F0030
+  82010A02 82010100 A6BCBD96 131E05F7 145EA72C 2CD686E6 17222EA1 F1EFF64D
+  CBB4C798 212AA147 C655D8D7 9471380D 8711441E 1AAF071A 9CAE6388 8A38E520
+  1C394D78 462EF239 C659F715 B98C0A59 5BBB5CBD 0CFEBEA3 700A8BF7 D8F256EE
+  4AA4E80D DB6FD1C9 60B1FD18 FFC69C96 6FA68957 A2617DE7 104FDC5F EA2956AC
+  7390A3EB 2B5436AD C847A2C5 DAB553EB 69A9A535 58E9F3E3 C0BD23CF 58BD7188
+  68E69491 20F320E7 948E71D7 AE3BCC84 F10684C7 4BC8E00F 539BA42B 42C68BB7
+  C7479096 B4CB2D62 EA2F505D C7B062A4 6811D95B E8250FC4 5D5D5FB8 8F27D191
+  C55F0D76 61F9A4CD 3D992327 A8BB03BD 4E6D7069 7CBADF8B DF5F4368 95135E44
+  DFC7C6CF 04DD7FD1 02030100 01A34230 40300E06 03551D0F 0101FF04 04030201
+  06300F06 03551D13 0101FF04 05300301 01FF301D 0603551D 0E041604 1449DC85
+  4B3D31E5 1B3E6A17 606AF333 3D3B4C73 E8300D06 092A8648 86F70D01 010B0500
+  03820101 00507F24 D3932A66 86025D9F E838AE5C 6D4DF6B0 49631C78 240DA905
+  604EDCDE FF4FED2B 77FC460E CD636FDB DD44681E 3A5673AB 9093D3B1 6C9E3D8B
+  D98987BF E40CBD9E 1AECA0C2 2189BB5C 8FA85686 CD98B646 5575B146 8DFC66A8
+  467A3DF4 4D565700 6ADF0F0D CF835015 3C04FF7C 21E878AC 11BA9CD2 55A9232C
+  7CA7B7E6 C1AF74F6 152E99B7 B1FCF9BB E973DE7F 5BDDEB86 C71E3B49 1765308B
+  5FB0DA06 B92AFE7F 494E8A9E 07B85737 F3A58BE1 1A48A229 C37C1E69 39F08678
+  80DDCD16 D6BACECA EEBC7CF9 8428787B 35202CDC 60E4616A B623CDBD 230E3AFB
+  418616A9 4093E049 4D10AB75 27E86F73 932E35B5 8862FDAE 0275156F 719BB2F0
+  D697DF7F 28
+        quit
+crypto pki certificate chain TP-self-signed-1117288648
+ certificate self-signed 01
+  30820330 30820218 A0030201 02020101 300D0609 2A864886 F70D0101 05050030
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 31313137 32383836 3438301E 170D3232 30313038 31303032
+  35335A17 0D333230 31303831 30303235 335A3031 312F302D 06035504 03132649
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D31 31313732
+  38383634 38308201 22300D06 092A8648 86F70D01 01010500 0382010F 00308201
+  0A028201 0100A83D 24EA750C C0994B54 64641F27 93804009 FCEF8729 B5BD4EE8
+  21A7B17C 0CD3154D 994B7137 D6B63597 DA320E2A B92AD479 940384AD 5BCE3034
+  E96774FF C4A684E2 F2EE96CD 6952D279 7438CEF5 149C0006 207F1A38 A7F573E9
+  F07A2CD8 20042E9C 7CF4A2D7 7976ABCC 99DA58DF 6C7617CB 9E2D9FE5 0C9E3448
+  444A8061 4BB048A0 0EE34E67 1E80FE33 AA3600D0 FA7080B4 B4C021A9 7E4F4A66
+  0ACC67DC 7B5E356C 2890EDDB 7FF55E79 D106F8D7 C17A371E 289EE76F 71470FA2
+  431D7600 37862DC6 E0591125 1146CC85 E2C7068D D56F7047 974406F3 838F6023
+  71A22C38 22C89FC3 2BA67CF8 CA000C73 2FB4406E B7C9B5D0 71A9BD8C 4D283D0A
+  2499B69F 93A50203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF
+  301F0603 551D2304 18301680 140687D2 EB25DECD E3D330EA FD6623C9 C9D5686B
+  8B301D06 03551D0E 04160414 0687D2EB 25DECDE3 D330EAFD 6623C9C9 D5686B8B
+  300D0609 2A864886 F70D0101 05050003 82010100 2DFD1CA9 3D3E6C73 F800EE7B
+  27F9A4D8 D3655A35 BBE61815 E41AD496 80305DE5 15960600 DCAA635E B4C77D9F
+  E1198909 BADDBA92 74A4A8B5 4658C6E0 72E6FB98 69B671AF 7C8DF379 BF65A8B3
+  6CE3CE7A BE13674A E7930353 F824B8CB 36A2C028 F68C2A9B 636F797E CB52B292
+  07D00818 D3CED0A7 3EA5C1F7 98C0F8BD 4FD29271 35C150E1 AA7712E5 7B5E6E9E
+  ED6BB726 71C1A21B A626B89D EA469AE0 30BB2779 70BBCC60 8F603CB1 C07A2BD7
+  E6FC6EBC 06029F66 15C0AD0A 9B63ED02 E330F497 D185D1F7 3F68A061 8E75C524
+  71B159C1 ABCA735B CE5DA1AF 8F87B77D 47679916 A1D4ABC9 4FD97E31 E5B23DAC
+  5FB9D9C5 6D4B1BDC 8CDAA567 427CCBCA 3E810C71
+        quit
+!
+!
+license boot level network-advantage
+!
+!
+diagnostic bootup level minimal
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+memory free low-watermark processor 79251
+!
+!
+redundancy
+ mode sso
+!
+!
+!
+!
+!
+!
+!
+class-map match-any system-cpp-police-topology-control
+  description Topology control
+class-map match-any system-cpp-police-sw-forward
+  description Sw forwarding, L2 LVX data, LOGGING
+class-map match-any system-cpp-default
+  description EWLC control, EWLC data, Inter FED
+class-map match-any system-cpp-police-sys-data
+  description Learning cache ovfl, High Rate App, Exception, EGR Exception, NFL SAMPLED DATA, RPF Failed
+class-map match-any system-cpp-police-punt-webauth
+  description Punt Webauth
+class-map match-any system-cpp-police-l2lvx-control
+  description L2 LVX control packets
+class-map match-any system-cpp-police-forus
+  description Forus Address resolution and Forus traffic
+class-map match-any system-cpp-police-multicast-end-station
+  description MCAST END STATION
+class-map match-any system-cpp-police-multicast
+  description Transit Traffic and MCAST Data
+class-map match-any system-cpp-police-l2-control
+  description L2 control
+class-map match-any system-cpp-police-dot1x-auth
+  description DOT1X Auth
+class-map match-any system-cpp-police-data
+  description ICMP redirect, ICMP_GEN and BROADCAST
+class-map match-any system-cpp-police-stackwise-virt-control
+  description Stackwise Virtual
+class-map match-any non-client-nrt-class
+class-map match-any system-cpp-police-routing-control
+  description Routing control and Low Latency
+class-map match-any system-cpp-police-protocol-snooping
+  description Protocol snooping
+class-map match-any system-cpp-police-dhcp-snooping
+  description DHCP snooping
+class-map match-any system-cpp-police-system-critical
+  description System Critical and Gold Pkt
+!
+policy-map system-cpp-policy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ vrf forwarding Mgmt-vrf
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface GigabitEthernet1/0/1
+ no switchport
+ ip address 172.16.12.1 255.255.255.0
+!
+interface GigabitEthernet1/0/2
+ no switchport
+ ip address 172.16.13.1 255.255.255.0
+!
+interface GigabitEthernet1/0/3
+ switchport access vlan 100
+ switchport mode access
+!
+interface GigabitEthernet1/0/4
+!
+interface GigabitEthernet1/0/5
+!
+interface GigabitEthernet1/0/6
+!
+interface GigabitEthernet1/0/7
+!
+interface GigabitEthernet1/0/8
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan100
+ ip address 172.16.1.2 255.255.255.0
+!
+!
+router eigrp 10
+ network 172.16.1.0 0.0.0.255
+ network 172.16.12.0 0.0.0.255
+ network 172.16.13.0 0.0.0.255
+!
+ip forward-protocol nd
+ip tcp mss 1360
+ip tcp window-size 212000
+ip http server
+ip http authentication local
+ip http secure-server
+!
+!
+!
+!
+!
+!
+control-plane
+ service-policy input system-cpp-policy
+!
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ login
+ transport input ssh
+line vty 5 15
+ login
+ transport input ssh
+!
+call-home
+ ! If contact email address in call-home is configured as sch-smart-licensing@cisco.com
+ ! the email address configured in Cisco Smart License Portal will be used as contact email address to send SCH notifications.
+ contact-email-addr sch-smart-licensing@cisco.com
+ profile "CiscoTAC-1"
+  active
+  destination transport-method http
+!
+!
+!
+!
+!
+end
