@@ -26,7 +26,11 @@ no process cpu autoprofile hog
 !
 !
 !
-!
+vlan 640
+vlan 641
+vlan 648
+vlan 649
+
 !
 !
 ip cef

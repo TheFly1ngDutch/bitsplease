@@ -265,7 +265,7 @@ ipv6 router eigrp 10
 !
 !
 ipv6 prefix-list V6_REDIST_STATIC seq 10 permit 2001:55::/96
-ipv6 prefix-list V6_REDIST_STATIC seq 20 permit 2001:100:66::AC10:100/120
+ipv6 prefix-list V6_REDIST_STATIC seq 20 permit 2001:100:66::/96
 route-map REDISTRIBUTE_STATIC_EIGRP permit 10
  match ip address prefix-list V4_RESIST_STATIC
 !
