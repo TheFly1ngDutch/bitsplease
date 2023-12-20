@@ -1,0 +1,135 @@
+
+Connecting to eve.bitsplease.com:32779 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32779
+*** date 20/12/23
+*** time 3:08:19 PM
+***
+
+DC2-MPLS>
+DC2-MPLS>
+DC2-MPLS>
+DC2-MPLS>en
+DC2-MPLS#term Len 0
+DC2-MPLS#show run
+Building configuration...
+
+Current configuration : 1140 bytes
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname DC2-MPLS
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 172.16.2.2 255.255.255.255
+!
+interface Ethernet0/0
+ ip address 10.0.2.2 255.255.255.0
+!
+interface Ethernet0/1
+ ip address 10.2.32.1 255.255.255.0
+!
+interface Ethernet0/2
+ ip address 10.2.31.1 255.255.255.0
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+!
+router eigrp 1
+ network 10.0.2.0 0.0.0.255
+ network 10.2.31.0 0.0.0.255
+ network 10.2.32.0 0.0.0.255
+!
+router bgp 65024
+ bgp log-neighbor-changes
+ network 172.16.2.2 mask 255.255.255.255
+ neighbor 10.2.31.2 remote-as 65022
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
+

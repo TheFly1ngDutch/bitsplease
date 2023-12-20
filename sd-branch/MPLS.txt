@@ -1,0 +1,155 @@
+
+Connecting to eve.bitsplease.com:32782 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32782
+*** date 20/12/23
+*** time 3:08:19 PM
+***
+
+MPLS>
+MPLS>en
+MPLS#term Len 0
+MPLS#show run
+Building configuration...
+
+Current configuration : 1606 bytes
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname MPLS
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ no ip address
+ shutdown
+!
+interface Ethernet0/1
+ ip address 10.0.1.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/2
+ ip address 10.0.2.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet0/3
+ ip address 10.199.199.20 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+!
+interface Ethernet1/0
+ ip address 192.168.32.2 255.255.255.0
+!
+interface Ethernet1/1
+ ip address 10.0.100.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+!
+router eigrp 1
+ network 10.0.1.0 0.0.0.255
+ network 10.0.2.0 0.0.0.255
+ network 10.0.100.0 0.0.0.255
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list INTERNET interface Ethernet0/3 overload
+ip route 0.0.0.0 0.0.0.0 10.199.199.1
+ip route 10.0.0.0 255.0.0.0 192.168.32.1
+!
+ip access-list standard INTERNET
+ permit 10.0.100.0 0.0.0.255
+ permit 10.0.1.0 0.0.0.255
+ permit 10.0.2.0 0.0.0.255
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
+
