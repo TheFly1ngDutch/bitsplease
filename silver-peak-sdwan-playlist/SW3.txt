@@ -1,0 +1,124 @@
+
+Connecting to eve.bitsplease.com:32779 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32779
+*** date 26/01/24
+*** time 3:30:07 PM
+***
+
+SW3>en
+SW3#term len 0
+SW3#show run
+Building configuration...
+
+Current configuration : 1384 bytes
+!
+! Last configuration change at 08:26:32 UTC Fri Jan 26 2024
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW3
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ switchport access vlan 114
+ switchport mode access
+!
+interface Ethernet0/1
+ switchport access vlan 114
+ switchport mode access
+!
+interface Ethernet0/2
+ switchport access vlan 35
+ switchport mode access
+!
+interface Ethernet0/3
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Vlan35
+ ip address 10.110.35.1 255.255.255.0
+!
+interface Vlan114
+ ip address 10.110.114.1 255.255.255.0
+!
+router bgp 65001
+ bgp log-neighbor-changes
+ network 10.110.35.0 mask 255.255.255.0
+ neighbor 10.110.114.101 remote-as 65001
+ neighbor 10.110.114.101 next-hop-self
+ neighbor 10.110.114.102 remote-as 65001
+ neighbor 10.110.114.102 next-hop-self
+ maximum-paths ibgp 2
+!
+ip forward-protocol nd
+!
+ip http server
+!
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+!
+!
+!
+end
+
+
+***
+*** DISCONNECT
+*** time 3:36:30 PM
+***
+SW3#

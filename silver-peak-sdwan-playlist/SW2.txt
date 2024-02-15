@@ -1,0 +1,120 @@
+
+Connecting to eve.bitsplease.com:32778 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32778
+*** date 26/01/24
+*** time 3:30:04 PM
+***
+
+SW2>
+SW2>en
+SW2#term len 0
+SW2#show run
+Building configuration...
+
+Current configuration : 1210 bytes
+!
+! Last configuration change at 08:26:30 UTC Fri Jan 26 2024
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ switchport access vlan 107
+ switchport mode access
+!
+interface Ethernet0/1
+ switchport access vlan 107
+ switchport mode access
+!
+interface Ethernet0/2
+ switchport access vlan 20
+ switchport mode access
+!
+interface Ethernet0/3
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Vlan20
+ ip address 10.110.20.1 255.255.255.0
+!
+interface Vlan107
+ ip address 10.110.107.1 255.255.255.0
+!
+router ospf 1
+ network 10.110.20.0 0.0.0.255 area 0
+ network 10.110.107.0 0.0.0.255 area 0
+!
+ip forward-protocol nd
+!
+ip http server
+!
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+!
+!
+!
+end
+
+
+***
+*** DISCONNECT
+*** time 3:36:30 PM
+***
+SW2#
