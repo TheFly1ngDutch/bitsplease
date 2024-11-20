@@ -1,0 +1,52 @@
+spine 1
+
+hostname Spine1
+
+router ospf 1
+    router-id 192.168.1.1ˇˇ
+    area 0.0.0.0
+
+interface 1/1/1
+    no shutdown
+    mtu 9198
+    routing
+        ip mtu 9198
+    ip address 192.168.3.0/31
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+
+interface 1/1/2
+    no shutdown
+    mtu 9198
+    routing
+    ip mtu 9198
+    ip address 192.168.3.4/31
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+
+! Lo0 used for EVPN peering with VTEPs
+interface loopback 0
+    ip address 192.168.1.1/32
+    ip ospf 1 area 0.0.0.0
+!
+!
+
+router bgp 65001ˇ
+    bgp router-id 192.168.1.1ˇ
+    neighbor leaf peer-group
+    neighbor leaf remote-as 65001
+    neighbor leaf description Leaf RR clients
+    neighbor leaf update-source loopback 0
+    neighbor 192.168.1.3 peer-group leaf
+    
+    neighbor 192.168.1.5 peer-group leaf
+    
+    address-family l2vpn evpn
+        neighbor leaf route-reflector-client
+        neighbor leaf send-community extended
+        neighbor 192.168.1.3 activate
+        
+        neighbor 192.168.1.5 activate
+        
+! Lo0 used for EVPN peering with VTEPs
+    exit-address-family

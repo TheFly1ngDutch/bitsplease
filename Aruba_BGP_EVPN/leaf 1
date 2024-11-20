@@ -1,0 +1,142 @@
+
+hostname Leaf1A
+
+interface 1/1/1
+    no shutdown
+    no routing
+    description Server
+    vlan access 10
+   
+
+interface 1/1/2
+    no shutdown
+    no routing
+    description Server
+    vlan access 11
+
+router ospf 1
+    router-id 192.168.1.3
+    area 0.0.0.0
+
+! Northbound uplink ports
+interface 1/1/3
+    no shutdown
+    description Spine1
+    mtu 9198
+    ip mtu 9198
+    ip address 192.168.3.1/31
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+
+interface 1/1/4
+    no shutdown
+    description Spine2
+    mtu 9198
+    ip mtu 9198
+    ip address 192.168.3.9/31
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+
+
+! Unique Lo0 on each VTEP
+
+interface loopback 0
+    ip address 192.168.1.3/32
+    ip ospf 1 area 0.0.0.0
+
+
+interface loopback 1
+    ip address 192.168.11.3/32
+    ip ospf 1 area 0.0.0.0
+
+
+vlan 10
+   
+vlan 11
+  
+evpn
+vlan 10
+        rd auto
+        route-target export auto
+        route-target import auto
+         
+    vlan 11
+        rd auto
+        route-target export auto
+        route-target import auto
+       
+        
+interface vxlan 1
+    source ip 192.168.11.3
+    no shutdown
+    vni 10010
+        vlan 10
+    vni 10011
+        vlan 11
+
+    
+router bgp 65001
+    bgp router-id 192.168.1.3
+    neighbor spine-RR peer-group
+    neighbor spine-RR remote-as 65001
+    neighbor spine-RR description Spine and RR peer-group
+    neighbor spine-RR update-source loopback 0
+    neighbor 192.168.1.1 peer-group spine-RR
+    neighbor 192.168.1.2 peer-group spine-RR
+    address-family l2vpn evpn
+        neighbor spine-RR send-community extended
+        neighbor 192.168.1.1 activate
+        neighbor 192.168.1.2 activate
+! Peer to EVPN RRs
+  exit-address-family
+
+
+vrf VRF1
+    rd 65001:1
+    route-target export 65001:1 evpn
+    route-target import 65001:1 evpn
+!
+
+
+interface vlan 10
+    
+    vrf attach VRF1
+    ip address 10.1.10.2/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.1.10.1
+
+    
+interface vlan 11
+    
+    vrf attach VRF1
+    ip address 10.1.11.2/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.1.11.1
+
+
+
+interface vxlan 1
+    vni 101
+        routing
+        vrf VRF1
+
+
+
+router bgp 65001
+vrf VRF1
+        address-family ipv4 unicast
+            redistribute connected
+        exit-address-family
+       
+
+
+evpn
+    vlan 10
+       redistribute host-route
+        !The locally learned neighbor entries (ARP/ND) on a VTEP, dynamically learned (via data plane) over client/tenant- facing SVI, can be published as host routes via Route Type-2 only over the BGP-EVPN control plane. 
+    vlan 11
+        redistribute host-route
+
+
+
+virtual-mac 02:00:00:00:01:00
