@@ -129,7 +129,6 @@ vrf VRF1
         exit-address-family
        
 
-
 evpn
     vlan 10
        redistribute host-route

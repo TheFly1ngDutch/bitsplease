@@ -1,0 +1,38 @@
+Border Leaf 
+
+vrf external
+    rd 1:300
+    address-family ipv4 unicast
+        route-target export 1:300
+        route-target import 1:100
+    exit-address-family
+
+vrf VRF1
+
+
+    address-family ipv4 unicast
+    route-target export 1:100
+    route-target import 1:300
+    exit-address-family
+
+router ospf 1 vrf external
+    router-id 30.1.1.1
+    redistribute bgp
+    area 0.0.0.0
+ˇ
+
+interface 1/1/5
+    no shutdown
+    routing
+    vrf attach external
+    ip address 30.1.1.1/24
+    ip ospf 1 area 0.0.0.0
+
+router bgp 65001
+
+vrf external
+!
+address-family ipv4 unicast
+    redistribute ospf
+exit-address-family
+
