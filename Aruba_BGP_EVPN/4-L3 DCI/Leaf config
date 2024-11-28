@@ -1,0 +1,382 @@
+
+
+leaf3# 
+
+hostname leaf3
+
+router ospf 1
+    router-id 100.100.103.77
+    bfd all-interfaces
+    redistribute bgp
+    area 0.0.0.0
+
+vlan 1,101-102
+evpn
+    vlan 101
+        rd auto
+        route-target export 65500:101
+        route-target import 65500:101
+    vlan 102
+        rd auto
+        route-target export 65500:102
+        route-target import 65500:102
+
+
+interface 1/1/1
+    description WAN
+    no shutdown
+    mtu 9000
+    ip mtu 9000
+    ip address 192.168.13.2/30
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+
+interface 1/1/4
+    description Servers
+    no shutdown
+    mtu 9000
+    no routing
+    vlan trunk native 1
+    vlan trunk allowed 101-102
+
+interface 1/1/6
+    description Gateway_Uplink
+    no shutdown
+    mtu 9000
+    no routing
+    vlan trunk native 1
+    vlan trunk allowed 101-102
+
+interface loopback 0
+    ip address 100.100.103.7/32
+    ip ospf 1 area 0.0.0.0
+interface loopback 1
+    ip address 100.100.103.77/32
+    ip ospf 1 area 0.0.0.0
+interface vxlan 1
+    source ip 100.100.103.7
+    no shutdown
+    vni 101
+        vlan 101
+    vni 102
+        vlan 102
+!
+!
+router bgp 65500
+    bgp router-id 100.100.103.77
+    no bgp fast-external-fallover
+    neighbor 100.100.101.33 remote-as 65500
+    neighbor 100.100.101.33 update-source loopback 1
+    neighbor 100.100.102.55 remote-as 65500
+    neighbor 100.100.102.55 update-source loopback 1
+    address-family l2vpn evpn
+        neighbor 100.100.101.33 send-community both
+        neighbor 100.100.101.33 activate
+        neighbor 100.100.102.55 send-community both
+        neighbor 100.100.102.55 activate
+    exit-address-family
+
+
+
+
+
+ 
+vrf VRF1
+
+    rd 65500:3
+    route-target export 65500:3 evpn
+    route-target import 65500:3 evpn
+
+
+interface vlan 101
+    
+    vrf attach VRF1
+    ip address 10.0.101.3/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.0.101.253
+    no sh
+
+interface vlan 102
+    
+    vrf attach VRF1
+    ip address 10.0.102.3/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.0.102.253
+    no sh
+
+
+interface vxlan 1
+    vni 1000
+        routing
+        vrf VRF1
+
+router bgp 65500
+vrf VRF1
+        address-family ipv4 unicast
+            redistribute connected
+        exit-address-family
+
+evpn
+    arp-suppression
+     vlan 101
+     redistribute host-route
+     vlan 102
+     redistribute host-route
+
+virtual-mac 00:00:00:00:00:77
+
+                                                                  
+------------------------------------------------------------------
+
+leaf2# 
+
+hostname leaf2
+
+
+router ospf 1
+    router-id 100.100.102.55
+    bfd all-interfaces
+    area 0.0.0.0
+
+vlan 1,101-102
+evpn
+    vlan 101
+        rd auto
+        route-target export 65500:101
+        route-target import 65500:101
+    vlan 102
+        rd auto
+        route-target export 65500:102
+        route-target import 65500:102
+
+interface 1/1/1
+    description WAN
+    no shutdown
+    mtu 9000
+    ip mtu 9000
+    ip address 192.168.12.2/30
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+interface 1/1/4
+    description Servers
+    no shutdown
+    mtu 9000
+    no routing
+    vlan trunk native 1
+    vlan trunk allowed 101-102
+interface 1/1/6
+    description Gateway_Uplink
+    no shutdown
+    mtu 9000
+    no routing
+    vlan trunk native 1
+    vlan trunk allowed 101-102
+interface loopback 0
+    ip address 100.100.102.5/32
+    ip ospf 1 area 0.0.0.0
+interface loopback 1
+    ip address 100.100.102.55/32
+    ip ospf 1 area 0.0.0.0
+interface vxlan 1
+    source ip 100.100.102.5
+    no shutdown
+    vni 101
+        vlan 101
+    vni 102
+        vlan 102
+!
+!
+!
+!
+!
+
+router bgp 65500
+    bgp router-id 100.100.102.55
+    no bgp fast-external-fallover
+    neighbor 100.100.101.33 remote-as 65500
+    neighbor 100.100.103.77 remote-as 65500
+    neighbor 100.100.103.77 update-source loopback 1
+    address-family l2vpn evpn
+        neighbor 100.100.101.33 send-community both
+        neighbor 100.100.101.33 activate
+        neighbor 100.100.103.77 send-community both
+        neighbor 100.100.103.77 activate
+    exit-address-family
+!
+
+
+
+
+
+vrf VRF1
+
+    rd 65500:2
+    route-target export 65500:2 evpn
+    route-target import 65500:2 evpn
+
+
+interface vlan 101
+    
+    vrf attach VRF1
+    ip address 10.0.101.2/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.0.101.253
+    no sh
+
+interface vlan 102
+    
+    vrf attach VRF1
+    ip address 10.0.102.2/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.0.102.253
+    no sh
+
+
+interface vxlan 1
+    vni 1000
+        routing
+        vrf VRF1
+
+router bgp 65500
+vrf VRF1
+        address-family ipv4 unicast
+            redistribute connected
+        exit-address-family
+
+evpn
+    arp-suppression
+     vlan 101
+     redistribute host-route
+     vlan 102
+     redistribute host-route
+
+virtual-mac 00:00:00:00:00:55
+
+
+
+
+------------------------------------------------------------------
+Leaf1# show run
+
+
+hostname Leaf1
+
+router ospf 1    
+    router-id 100.100.101.33
+    bfd all-interfaces
+    area 0.0.0.0
+
+vlan 1,101-102
+evpn
+    vlan 101
+        rd auto
+        route-target export 65500:101
+        route-target import 65500:101
+    vlan 102
+        rd auto                                                
+        route-target export 65500:102
+        route-target import 65500:102
+
+interface 1/1/1
+    description WAN
+    no shutdown
+    mtu 9000
+    ip mtu 9000
+    ip address 192.168.11.2/30
+    ip ospf 1 area 0.0.0.0
+    ip ospf network point-to-point
+interface 1/1/4
+    description Servers
+    no shutdown
+    mtu 9000
+    no routing
+    vlan trunk native 1
+    vlan trunk allowed 101-102
+interface 1/1/6
+    description Gateway_Uplink
+    no shutdown     
+    mtu 9000
+    no routing
+    vlan trunk native 1
+    vlan trunk allowed 101-102
+
+interface loopback 0
+    ip address 100.100.101.3/32
+    ip ospf 1 area 0.0.0.0
+interface loopback 1
+    ip address 100.100.101.33/32
+    ip ospf 1 area 0.0.0.0
+interface vxlan 1
+    source ip 100.100.101.3
+    no shutdown
+    vni 101
+        vlan 101
+    vni 102
+        vlan 102
+!
+!
+!
+!
+!
+
+
+router bgp 65500
+    bgp router-id 100.100.101.33
+    no bgp fast-external-fallover
+    neighbor 100.100.102.55 remote-as 65500
+    neighbor 100.100.102.55 update-source loopback 1
+    neighbor 100.100.103.77 remote-as 65500
+    neighbor 100.100.103.77 update-source loopback 1
+    address-family l2vpn evpn
+        neighbor 100.100.102.55 send-community both
+        neighbor 100.100.102.55 activate
+        neighbor 100.100.103.77 send-community both
+        neighbor 100.100.103.77 activate
+    exit-address-family
+
+
+
+vrf VRF1
+
+    rd 65500:1
+    route-target export 65500:1 evpn
+    route-target import 65500:1 evpn
+
+
+interface vlan 101
+    
+    vrf attach VRF1
+    ip address 10.0.101.1/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.0.101.253
+    no sh
+
+interface vlan 102
+    
+    vrf attach VRF1ˇ
+    ip address 10.0.102.1/24
+    active-gateway ip mac 12:00:00:00:01:00
+    active-gateway ip 10.0.102.253
+    no sh
+
+
+interface vxlan 1
+    vni 1000
+        routing
+        vrf VRF1
+
+router bgp 65500
+vrf VRF1
+        address-family ipv4 unicast
+            redistribute connected
+        exit-address-family
+
+evpn
+    arp-suppression
+     vlan 101
+     redistribute host-route
+     vlan 102
+     redistribute host-route
+
+virtual-mac 00:00:00:00:00:33
+
