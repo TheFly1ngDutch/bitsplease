@@ -1,0 +1,62 @@
+Leaf 2
+
+interface mgmt
+ip static 10.251.1.4/24
+default-gateway 10.251.1.254
+
+interface lag 256
+no shut
+no routing
+vlan trunk native 1
+vlan trunk allowed all
+lacp mode active
+exit
+
+int 1/1/3
+lag 256
+no sh
+int 1/1/4
+lag 256
+no sh
+
+vsx
+    system-mac 02:01:00:00:00:02
+    inter-switch-link lag 256
+    role secondary
+    vsx-sync vsx-global
+
+virtual-mac 02:01:00:00:00:02
+
+
+vsx
+keepalive peer 10.251.1.3 source 10.251.1.4 vrf mgmt
+
+interface lag 1 multi-chassis
+
+no sh
+
+interface 1/1/1,1/1/2
+lag 1
+no sh
+
+interface lag 3 multi-chassis
+no sh
+
+
+int 1/1/5
+lag 3
+no sh
+
+spanning-tree config-name DCN
+spanning-tree config-revision 1
+spanning-tree instance 1 vlan 10-100
+spanning-tree
+
+interface 1/1/6-1/1/48
+no routing
+spanning-tree port-type admin-edge
+spanning-tree bpdu-guard
+
+interface lag 3
+spanning-tree port-type admin-edge
+spanning-tree bpdu-guard

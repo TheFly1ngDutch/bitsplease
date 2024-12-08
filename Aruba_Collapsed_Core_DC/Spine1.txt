@@ -1,0 +1,139 @@
+Spine 1
+
+interface mgmt
+ip static 10.251.1.1/24
+default-gateway 10.251.1.254
+
+interface lag 256
+no shut
+no routing
+vlan trunk native 1
+vlan trunk allowed all
+lacp mode active
+exit
+
+int 1/1/5
+lag 256
+no sh
+int 1/1/6
+lag 256
+no sh
+
+vsx
+    system-mac 02:01:00:00:00:01
+    inter-switch-link lag 256
+    role primary
+    vsx-sync vsx-global
+
+virtual-mac 02:01:00:00:00:01
+
+
+vrf KA
+interface 1/1/7ˇ
+vrf attach KA
+ip address 10.1.15.1/30
+no shutdown
+
+vsx
+keepalive peer 10.1.15.2 source 10.1.15.1 vrf KA
+
+vlan 10-13
+vsx-sync
+vsx
+vsx-sync aaa bgp dhcp-relay loop-protect-global mclag-interfaces ospf pim qos-global route-map
+
+vlan 10
+ name Prod 1
+vlan 11
+ name Prod 2
+vlan 12
+ name Test VLAN
+vlan 13
+name QA VLAN
+
+
+interface vlan 10
+ip address 10.1.10.2/24
+
+interface vlan 11
+ip address 10.1.11.2/24
+
+interface vlan 12
+ip address 10.1.12.2/24
+
+interface vlan 13
+ip address 10.1.13.2/24
+
+
+interface vlan 10
+active-gateway ip 10.1.10.1 mac 02:02:00:00:00:01
+interface vlan 11
+active-gateway ip 10.1.11.1 mac 02:02:00:00:00:01
+interface vlan 12
+active-gateway ip 10.1.12.1 mac 02:02:00:00:00:01
+interface vlan 13
+active-gateway ip 10.1.13.1 mac 02:02:00:00:00:01
+
+vsx
+linkup-delay-timer 600
+
+
+interface lag 1 multi-chassis
+description LAG_to_ToR-1
+vlan trunk allowed 10,11,12,13
+lacp rate fast
+no sh
+
+
+
+interface 1/1/1,1/1/2
+lag 1
+no sh
+
+
+spanning-tree config-name DCN
+spanning-tree config-revision 1
+spanning-tree instance 1 vlan 10-100
+spanning-tree
+
+spanning-tree priority 0
+spanning-tree instance 1 priority 0
+
+
+interface 1/1/4,1/1/8-1/1/48
+no routing
+spanning-tree root-guard
+
+interface lag 1
+spanning-tree root-guard
+ˇ
+no ip icmp redirect
+
+router ospf 1
+       router-id 2.2.2.2
+       redistribute connected
+       area 0.0.0.0
+
+vlan 101
+int vlan 101
+ip address 10.1.101.2/24
+ip ospf 1 area 0.0.0.0
+vsx active-forwarding
+no sh
+
+interface lag 2 multi-chassis
+vlan access 101
+lacp rate fast
+no sh
+
+int 1/1/3ˇ
+lag 2
+no sh
+
+
+
+
+
+
+
+

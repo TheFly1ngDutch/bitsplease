@@ -1,0 +1,21 @@
+vlan 1,10-13
+
+interface lag 3
+    no shutdown
+    no routing
+    vlan trunk allowed 10,11,12,13
+    lacp mode active
+    lacp rate fast
+
+interface 1/1/1
+    no shutdownˇ
+    lag 3
+
+interface 1/1/2
+    no shutdown
+    lag 3
+
+interface vlan 10
+ip address 10.1.10.10/24
+
+ip route 0.0.0.0 0.0.0.0 10.1.10.1

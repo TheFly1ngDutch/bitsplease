@@ -1,0 +1,30 @@
+router ospf 1
+       router-id 1.1.1.1
+       redistribute connected
+       area 0.0.0.0
+
+
+vlan 101
+
+interface lag 2
+    no shutdown
+    no routing
+    vlan access 101ˇ
+    lacp mode active
+    lacp rate fast
+
+int 1/1/1
+lag 2
+no sh
+
+
+int 1/1/2
+lag 2
+no sh
+
+
+int vlan 101
+ip address 10.1.101.1/24
+ip ospf 1 area 0.0.0.0
+no sh
+
