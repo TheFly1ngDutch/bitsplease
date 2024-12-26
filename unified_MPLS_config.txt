@@ -1,0 +1,258 @@
+#Access1
+hostname Access1
+!
+line con 0
+ logging sync
+!
+int Gi1
+ ip address 10.1.2.1 255.255.255.0
+ no shut
+ mpls ip
+ ip ospf network point-to-point
+!
+int Lo0
+ ip address 1.1.1.1 255.255.255.255
+!
+router ospf 1
+ network 0.0.0.0 255.255.255.255 area 0
+
+
+#Agg1
+hostname Agg1
+!
+line con 0
+ logging sync
+!
+int Gi1
+ ip address 10.1.2.2 255.255.255.0
+ no shut
+ mpls ip
+ ip ospf network point-to-point
+!
+int Gi2
+ ip address 10.2.3.2 255.255.255.0
+ no shut
+ mpls ip
+ ip router isis
+ isis network point-to-point
+!
+int Lo0
+ ip address 2.2.2.2 255.255.255.255
+ ip router isis
+!
+router ospf 1
+ network 10.1.2.0 0.0.0.255 area 0
+ network 2.2.2.2 255.255.255.255 area 0
+!
+router isis
+ net 49.0001.0000.0000.0002.00
+ is-type level-2-only
+ metric-style wide
+
+#Core1
+hostname Core1
+!
+line con 0
+ logging sync
+!
+int Gi1
+ ip address 10.3.4.3 255.255.255.0
+ no shut
+ mpls ip
+ ip router isis
+ isis network point-to-point
+!
+int Gi2
+ ip address 10.2.3.3 255.255.255.0
+ no shut
+ mpls ip
+ ip router isis
+ isis network point-to-point
+!
+int Lo0
+ ip address 3.3.3.3 255.255.255.255
+ ip router isis
+!
+router isis
+ net 49.0001.0000.0000.0003.00
+ is-type level-2-only
+ metric-style wide
+
+#Core2
+hostname Core2
+!
+int Gi0/0/0/0
+ ip address 10.3.4.4/24
+ no shut
+!
+int Gi0/0/0/1
+ ip address 10.4.5.4/24
+ no shut
+!
+int lo0
+ ip address 4.4.4.4/32
+!
+router isis 1
+ net 49.0001.0000.0000.0004.00
+ is-type level-2-only
+ address-family ipv4 unicast
+  metric-style wide
+ int Gi0/0/0/0
+  point-to-point
+  address-family ipv4 unicast
+ int Gi0/0/0/1
+  point-to-point
+  address-family ipv4 unicast
+ int Lo0
+  address-family ipv4 unicast
+!
+mpls ldp
+ int Gi0/0/0/0
+ int Gi0/0/0/1
+
+#Agg2
+hostname Agg2
+!
+int Gi0/0/0/0
+ ip address 10.5.6.5/24
+ no shut
+!
+int Gi0/0/0/1
+ ip address 10.4.5.5/24
+ no shut
+!
+int lo0
+ ip address 5.5.5.5/32
+!
+router isis 1
+ net 49.0001.0000.0000.0005.00
+ is-type level-2-only
+ address-family ipv4 unicast
+  metric-style wide
+ int Gi0/0/0/1
+  point-to-point
+  address-family ipv4 unicast
+ int Lo0
+  address-family ipv4 unicast
+!
+router ospf 2
+ area 0
+  int Gi0/0/0/0
+  int Lo0
+!
+mpls ldp
+ int Gi0/0/0/0
+ int Gi0/0/0/1
+
+#Access2
+hostname Access2
+!
+int Gi0/0/0/0
+ ip address 10.5.6.6/24
+ no shut
+!
+int lo0
+ ip address 6.6.6.6/32
+!
+router ospf 2
+ area 0
+  int Gi0/0/0/0
+  int Lo0
+!
+mpls ldp
+ int Gi0/0/0/0
+
+
+------------------------------------------
+
+
+ #Access1
+router bgp 100
+ neighbor 2.2.2.2 remote-as 100
+ neighbor 2.2.2.2 update-source Lo0
+ network 1.1.1.1 mask 255.255.255.255
+ neighbor 2.2.2.2 send-label
+
+#Agg1
+router bgp 100
+ neighbor 1.1.1.1 remote-as 100
+ neighbor 1.1.1.1 update-source Lo0
+ neighbor 1.1.1.1 send-label
+ neighbor 1.1.1.1 next-hop-self all
+ neighbor 1.1.1.1 route-reflector-client
+ neighbor 5.5.5.5 remote-as 100
+ neighbor 5.5.5.5 update-source Lo0
+ neighbor 5.5.5.5 send-label
+ neighbor 5.5.5.5 next-hop-self all
+ neighbor 5.5.5.5 route-reflector-client
+ 
+#Agg2
+router bgp 100
+ ibgp policy out enforce-modifications
+ address-family ipv4 unicast
+  allocate-label all
+ !
+ neighbor 2.2.2.2
+  remote-as 100
+  update-source Lo0
+  address-family ipv4 labeled-unicast
+   route-reflector-client
+   next-hop-self
+ !
+  neighbor 6.6.6.6
+  remote-as 100
+  update-source Lo0
+  address-family ipv4 labeled-unicast
+   route-reflector-client
+   next-hop-self
+
+#Access2
+router bgp 100
+ address-family ipv4 unicast
+  network 6.6.6.6/32
+  allocate-label all
+ !
+  neighbor 5.5.5.5
+  remote-as 100
+  update-source Lo0
+  address-family ipv4 labeled-unicast
+
+
+
+
+
+------------------------------------------
+  #CE1
+hostname CE1
+!
+line con 0
+ logging sync
+!
+int e0/0
+ ip address 10.1.1.1 255.255.255.252
+ no shut
+
+#CE2
+hostname CE2
+!
+line con 0
+ logging sync
+!
+int e0/0
+ ip address 10.1.1.2 255.255.255.252
+ no shut
+
+#Access1
+int Gi2
+ no shut
+ service instance 1 ethernet
+  encapsulation default
+  xconnect 6.6.6.6 1 encapsulation mpls
+
+#Access2
+int Gi0/0/0/1 l2transport
+ no shut
+!
+l2vpn xconnect group XC p2p CUSTOMER1
+ int Gi0/0/0/1
+ neighbor 1.1.1.1 pw-id 1
