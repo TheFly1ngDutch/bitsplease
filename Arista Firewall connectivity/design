@@ -1,0 +1,33 @@
+ISP
+
+    bgp with route maps
+    default routes
+    loopback
+    towards TO_ISP1/2
+    towards TO_Border1/2
+
+FW1
+
+    outside interfaces
+    inside interfaces
+    PO
+    HA via HSRP
+    bgp
+        loop - AS override
+
+core 
+
+Border1
+
+    VRF
+
+    MLAG
+    VARP
+    BGP 
+        ebgp
+        ibgp
+        graceful restart 
+        route maps 
+            deny all towards ISP
+            next hop to VARP
+    NAT 

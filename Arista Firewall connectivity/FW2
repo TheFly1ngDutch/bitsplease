@@ -1,0 +1,62 @@
+
+hostname FW2
+
+
+!
+interface Port-channel11
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel21
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 11 mode active
+!
+interface Ethernet0/2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 11 mode active
+!
+interface Ethernet0/3
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 21 mode active
+!
+interface Ethernet1/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 21 mode active
+!
+
+!
+interface Vlan100
+ ip address 172.16.1.6 255.255.255.248
+ standby 1 ip 172.16.1.4
+ standby 1 priority 100
+!
+interface Vlan200
+ ip address 172.16.2.6 255.255.255.248
+ standby 2 ip 172.16.2.4
+ standby 2 priority 100
+!
+ router bgp 65002
+ bgp log-neighbor-changes
+ neighbor 172.16.1.2 remote-as 65000
+ neighbor 172.16.1.2 as-override
+ neighbor 172.16.1.3 remote-as 65000
+ neighbor 172.16.1.3 as-override
+ neighbor 172.16.2.2 remote-as 65000
+ neighbor 172.16.2.2 as-override
+ neighbor 172.16.2.3 remote-as 65000
+ neighbor 172.16.2.3 as-override
+ maximum-paths 4
+ bgp graceful-restart
+ bgp graceful-restart  restart-time 120
