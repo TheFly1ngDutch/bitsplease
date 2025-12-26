@@ -1,0 +1,176 @@
+
+Connecting to eve.bitsplease.com:32773 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32773
+*** date 26/12/25
+*** time 
+***
+
+leaf4-service#term len 0
+Pagination disabled.
+leaf4-service#show run
+! Command: show running-config
+! device: leaf4-service (vEOS-lab, EOS-4.34.0F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf4-service
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vlan 10
+   name Red
+!
+vlan 20
+   name green
+!
+vlan 99
+   name service
+!
+vrf instance VRF-A
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.41.2/30
+!
+interface Ethernet2
+   no switchport
+   vrf VRF-A
+   ip address 10.0.49.1/30
+!
+interface Ethernet3
+   switchport access vlan 99
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 4.4.4.4/32
+!
+interface Management1
+!
+interface Vlan10
+   no autostate
+   vrf VRF-A
+   ip address virtual 172.16.10.254/24
+!
+interface Vlan20
+   no autostate
+   vrf VRF-A
+   ip address virtual 172.16.20.254/24
+!
+interface Vlan99
+   no autostate
+   vrf VRF-A
+   ip address virtual 172.99.99.254/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 1010
+   vxlan vlan 20 vni 2020
+   vxlan vlan 99 vni 9999
+   vxlan vrf VRF-A vni 5050
+!
+ip virtual-router mac-address 00:1c:73:00:00:97
+!
+ip routing
+ip routing vrf VRF-A
+!
+ip prefix-list Loopback
+   seq 10 permit 4.4.4.4/32
+!
+ip route vrf VRF-A 200.200.200.0/24 10.0.49.2
+!
+route-map RM-CONN-2-BGP permit 10
+   match ip address prefix-list Loopback
+!
+route-map RM-MLAG-PEER-IN permit 10
+   set origin incomplete
+!
+router bgp 65204
+   router-id 4.4.4.4
+   no bgp default ipv4-unicast
+   distance bgp 20 200 200
+   maximum-paths 4 ecmp 4
+   neighbor LOCAL-EVPN-PEERS peer group
+   neighbor LOCAL-EVPN-PEERS update-source Loopback0
+   neighbor LOCAL-EVPN-PEERS ebgp-multihop 3
+   neighbor LOCAL-EVPN-PEERS send-community extended
+   neighbor LOCAL-EVPN-PEERS maximum-routes 0
+   neighbor LOCAL-IPV4-PEERS peer group
+   neighbor LOCAL-IPV4-PEERS send-community
+   neighbor LOCAL-IPV4-PEERS maximum-routes 12000
+   neighbor 10.0.41.1 peer group LOCAL-IPV4-PEERS
+   neighbor 10.0.41.1 remote-as 65200
+   neighbor 10.0.41.1 description Spine1
+   neighbor 11.11.11.11 peer group LOCAL-EVPN-PEERS
+   neighbor 11.11.11.11 remote-as 65200
+   neighbor 11.11.11.11 description spine1
+   !
+   vlan 10
+      rd 4.4.4.4:1010
+      route-target both 1010:1010
+      redistribute learned
+   !
+   vlan 20
+      rd 4.4.4.4:2020
+      route-target both 2020:2020
+      redistribute learned
+   !
+   vlan 99
+      rd 172.16.0.74:9999
+      route-target both 9999:9999
+      redistribute learned
+      no redistribute host-route
+   !
+   address-family evpn
+      neighbor LOCAL-EVPN-PEERS activate
+   !
+   address-family ipv4
+      no neighbor LOCAL-EVPN-PEERS activate
+      neighbor LOCAL-IPV4-PEERS activate
+      redistribute connected route-map RM-CONN-2-BGP
+   !
+   vrf VRF-A
+      rd 4.4.4.4:5050
+      route-target import evpn 5050:5050
+      route-target export evpn 5050:5050
+      router-id 4.4.4.4
+      redistribute attached-host
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end
+l
+***
+*** DISCONNECT
+*** time 
+***
+eaf4-service#

@@ -1,0 +1,163 @@
+
+Connecting to eve.bitsplease.com:32772 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32772
+*** date 26/12/25
+*** time 
+***
+
+leaf3-internet#term len 0
+Pagination disabled.
+leaf3-internet#show run
+! Command: show running-config
+! device: leaf3-internet (vEOS-lab, EOS-4.34.0F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf3-internet
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vlan 10
+   name Red
+!
+vlan 20
+   name green
+!
+vrf instance VRF-A
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.31.2/30
+!
+interface Ethernet2
+   no switchport
+   vrf VRF-A
+   ip address 10.0.39.1/30
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 3.3.3.3/32
+!
+interface Management1
+!
+interface Vlan10
+   no autostate
+   vrf VRF-A
+   ip address virtual 172.16.10.254/24
+!
+interface Vlan20
+   no autostate
+   vrf VRF-A
+   ip address virtual 172.16.20.254/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 1010
+   vxlan vlan 20 vni 2020
+   vxlan vrf VRF-A vni 5050
+!
+ip virtual-router mac-address 00:1c:73:00:00:97
+!
+ip routing
+ip routing vrf VRF-A
+!
+ip prefix-list Loopback
+   seq 10 permit 3.3.3.3/32
+!
+ip route vrf VRF-A 0.0.0.0/0 10.0.39.2
+!
+route-map RM-CONN-2-BGP permit 10
+   match ip address prefix-list Loopback
+!
+route-map RM-MLAG-PEER-IN permit 10
+   set origin incomplete
+!
+router bgp 65203
+   router-id 3.3.3.3
+   no bgp default ipv4-unicast
+   distance bgp 20 200 200
+   maximum-paths 4 ecmp 4
+   neighbor LOCAL-EVPN-PEERS peer group
+   neighbor LOCAL-EVPN-PEERS update-source Loopback0
+   neighbor LOCAL-EVPN-PEERS ebgp-multihop 3
+   neighbor LOCAL-EVPN-PEERS send-community extended
+   neighbor LOCAL-EVPN-PEERS maximum-routes 0
+   neighbor LOCAL-IPV4-PEERS peer group
+   neighbor LOCAL-IPV4-PEERS send-community
+   neighbor LOCAL-IPV4-PEERS maximum-routes 12000
+   neighbor 10.0.31.1 peer group LOCAL-IPV4-PEERS
+   neighbor 10.0.31.1 remote-as 65200
+   neighbor 10.0.31.1 description Spine1
+   neighbor 11.11.11.11 peer group LOCAL-EVPN-PEERS
+   neighbor 11.11.11.11 remote-as 65200
+   neighbor 11.11.11.11 description spine1
+   !
+   vlan 10
+      rd 3.3.3.3:1010
+      route-target both 1010:1010
+      redistribute learned
+   !
+   vlan 20
+      rd 3.3.3.3:2020
+      route-target both 2020:2020
+      redistribute learned
+   !
+   address-family evpn
+      neighbor LOCAL-EVPN-PEERS activate
+   !
+   address-family ipv4
+      no neighbor LOCAL-EVPN-PEERS activate
+      neighbor LOCAL-IPV4-PEERS activate
+      redistribute connected route-map RM-CONN-2-BGP
+   !
+   vrf VRF-A
+      rd 3.3.3.3:5050
+      route-target import evpn 5050:5050
+      route-target export evpn 5050:5050
+      router-id 3.3.3.3
+      redistribute attached-host
+      !
+      address-family ipv4
+         redistribute static
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end
+
+***
+*** DISCONNECT
+*** time 
+***
+leaf3-internet#

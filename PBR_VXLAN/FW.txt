@@ -1,0 +1,72 @@
+
+Connecting to eve.bitsplease.com:32780 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32780
+*** date 26/12/25
+*** time 
+***
+
+FW#term len 0
+Pagination disabled.
+FW#show run
+! Command: show running-config
+! device: FW (vEOS-lab, EOS-4.34.0F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname FW
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+interface Ethernet1
+   no switchport
+   ip address 172.99.99.10/24
+!
+interface Ethernet2
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Management1
+!
+ip routing
+!
+ip route 0.0.0.0/0 172.99.99.254
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end
+F
+***
+*** DISCONNECT
+*** time 
+***
+W#

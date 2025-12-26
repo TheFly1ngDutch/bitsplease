@@ -1,0 +1,133 @@
+
+Connecting to eve.bitsplease.com:32769 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32769
+*** date 26/12/25
+*** time 
+***
+
+spine1(config)#term len 0
+Pagination disabled.
+spine1(config)#show run
+! Command: show running-config
+! device: spine1 (vEOS-lab, EOS-4.34.0F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+terminal length 0
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine1
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.11.1/30
+!
+interface Ethernet2
+   no switchport
+   ip address 10.0.21.1/30
+!
+interface Ethernet3
+   no switchport
+   ip address 10.0.31.1/30
+!
+interface Ethernet4
+   no switchport
+   ip address 10.0.41.1/30
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 11.11.11.11/32
+!
+interface Management1
+!
+ip routing
+!
+ip prefix-list Loopback
+   seq 10 permit 11.11.11.11/32
+!
+route-map RM-CONN-2-BGP permit 10
+   match ip address prefix-list Loopback
+!
+router bgp 65200
+   router-id 11.11.11.11
+   no bgp default ipv4-unicast
+   distance bgp 20 200 200
+   maximum-paths 4 ecmp 4
+   neighbor LOCAL-EVPN-PEERS peer group
+   neighbor LOCAL-EVPN-PEERS next-hop-unchanged
+   neighbor LOCAL-EVPN-PEERS update-source Loopback0
+   neighbor LOCAL-EVPN-PEERS ebgp-multihop 3
+   neighbor LOCAL-EVPN-PEERS send-community extended
+   neighbor LOCAL-EVPN-PEERS maximum-routes 0
+   neighbor 1.1.1.1 peer group LOCAL-EVPN-PEERS
+   neighbor 1.1.1.1 remote-as 65201
+   neighbor 1.1.1.1 description leaf1
+   neighbor 2.2.2.2 peer group LOCAL-EVPN-PEERS
+   neighbor 2.2.2.2 remote-as 65202
+   neighbor 2.2.2.2 description leaf2
+   neighbor 3.3.3.3 peer group LOCAL-EVPN-PEERS
+   neighbor 3.3.3.3 remote-as 65203
+   neighbor 3.3.3.3 description internet
+   neighbor 4.4.4.4 peer group LOCAL-EVPN-PEERS
+   neighbor 4.4.4.4 remote-as 65204
+   neighbor 4.4.4.4 description PL
+   neighbor 10.0.11.2 remote-as 65201
+   neighbor 10.0.11.2 description Leaf1
+   neighbor 10.0.11.2 maximum-routes 12000
+   neighbor 10.0.21.2 remote-as 65202
+   neighbor 10.0.21.2 description Leaf2
+   neighbor 10.0.21.2 maximum-routes 12000
+   neighbor 10.0.31.2 remote-as 65203
+   neighbor 10.0.31.2 description internet
+   neighbor 10.0.31.2 maximum-routes 12000
+   neighbor 10.0.41.2 remote-as 65204
+   neighbor 10.0.41.2 description internet
+   neighbor 10.0.41.2 maximum-routes 12000
+   !
+   address-family evpn
+      neighbor LOCAL-EVPN-PEERS activate
+   !
+   address-family ipv4
+      neighbor 10.0.11.2 activate
+      neighbor 10.0.21.2 activate
+      neighbor 10.0.31.2 activate
+      neighbor 10.0.41.2 activate
+      redistribute connected route-map RM-CONN-2-BGP
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end
+
+***
+*** DISCONNECT
+*** time 
+***
+spine1(config)#
