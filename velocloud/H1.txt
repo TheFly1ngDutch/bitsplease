@@ -1,0 +1,104 @@
+
+Connecting to eve.bitsplease.com:32770 (press Esc to cancel)...
+                                                                   
+
+***
+*** CONNECT TO eve.bitsplease.com:32770
+*** date 27/09/26
+*** time 
+***
+
+H1>en
+H1#term len 0
+H1#show run
+Building configuration...
+
+Current configuration : 879 bytes
+!
+! Last configuration change at 13:21:14 UTC Sat Sep 12 2026
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname H1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ no switchport
+ ip address 192.168.11.10 255.255.255.0
+!
+interface Ethernet0/1
+!
+interface Ethernet0/2
+!
+interface Ethernet0/3
+!
+ip forward-protocol nd
+!
+ip http server
+!
+ip route 0.0.0.0 0.0.0.0 192.168.11.254
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+!
+!
+!
+end
+
+
+***
+*** DISCONNECT
+*** time 
+***
+H1#
