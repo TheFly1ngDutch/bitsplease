@@ -1,0 +1,19 @@
+#cloud-config
+password: Velocloud123
+chpasswd: {expire: False}
+ssh_pwauth: True
+
+vco:
+  super_users:
+     list: |
+       admin@eve.lab:Velocloud123
+     remove_default_users: True
+  system_properties:
+     list: |
+        mail.smtp.port:34
+        mail.smtp.host:smtp.yourdomain.com
+        service.maxmind.enable:True
+        service.maxmind.license:todo_license
+        service.maxmind.userid:todo_user
+        service.twilio.phoneNumber:222123123
+        network.public.address:222123123

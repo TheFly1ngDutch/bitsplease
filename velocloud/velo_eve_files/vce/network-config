@@ -1,0 +1,11 @@
+#network-config
+version: 1
+config:
+  - type: physical
+    name: GE3
+    subnets:
+      - type: dhcp
+  - type: physical
+    name: GE4
+    subnets:
+      - type: dhcp

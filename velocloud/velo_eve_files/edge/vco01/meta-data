@@ -1,0 +1,11 @@
+instance-id: vco01
+local-hostname: vco-01
+network-interfaces: |
+  auto eth0
+  iface eth0 inet static
+  address 13.1.1.102
+  network 13.1.1.0 
+  netmask 255.255.255.0
+  broadcast 13.1.1.255
+  gateway 13.1.1.254
+  dns-nameservers 13.1.1.254

@@ -1,0 +1,12 @@
+#meta-data
+instance-id: vcg01
+local-hostname: vcg01
+network-interfaces: |
+  auto eth0
+  iface eth0 inet static
+  address 13.1.1.101
+  network 13.1.1.0
+  netmask 255.255.255.0
+  broadcast 13.1.1.255
+  gateway 13.1.1.254
+  dns-nameservers 8.8.8.8 1.1.1.1
